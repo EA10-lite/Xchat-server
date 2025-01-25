@@ -13,7 +13,7 @@ app.use(express.static('public'));
 
 app.use(
     cors({
-      origin: ["http://localhost:3000", "http://localhost:3001"],
+      origin: ["https://x-chat-client.vercel.app/","http://localhost:3000", "http://localhost:3001"],
       credentials: true,
     })
 );

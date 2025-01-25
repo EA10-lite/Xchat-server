@@ -13,14 +13,14 @@ app.use(express.static('public'));
 
 app.use(
     cors({
-      origin: ["https://x-chat-client.vercel.app/","http://localhost:3000", "http://localhost:3001"],
+      origin: ["https://x-chat-client.vercel.app","http://localhost:3000", "http://localhost:3001"],
       credentials: true,
     })
 );
   
 const io = new Server(server, {
     cors: {
-      origin: 'https://x-chat-client.vercel.app/',
+      origin: 'https://x-chat-client.vercel.app',
       methods:['GET','POST']
     }
 })

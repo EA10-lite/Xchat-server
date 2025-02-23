@@ -1,10 +1,10 @@
 const { Schema, Types, model } = require("mongoose");
 
-const message = new Schema({
-    text: { type: String, required: true },
+const message = Schema({
+    room: { type: Types.ObjectId, required: true, ref: "PrivateChat"},
+    message: { type: String, required: true },
     sender: { type: Types.ObjectId, ref: "User", required: true },
-    recipient: { type: Types.ObjectId, ref: "User", required: true },
-    delivered: { type: Boolean, default: false },
+    receiver: { type: Types.ObjectId, ref: "User", required: true },
 }, { timestamps: true })
 
 module.exports = model("Message", message);

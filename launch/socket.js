@@ -2,6 +2,13 @@
 const { Server } = require('socket.io');
 const http = require("http");
 
+const { 
+    SendMessage, 
+    GetMessages,
+    GetRecentChats,
+    CreatePrivateRoom, 
+} = require('../services/Message');
+
 module.exports = (app) => {
     const server  = http.createServer(app);
     
@@ -11,11 +18,68 @@ module.exports = (app) => {
           methods:['GET','POST']
         }
     })
-    
+
+    server.listen(4000, ()=> {
+        console.log("Socket server running on port 5000");
+    });
+
+
     io.on('connection', (socket) => {
-        socket.on('chat', (data) => {
-            console.log(data);
-            io.sockets.emit('chat', data);
+
+        // Handle user connection
+        socket.on("userConnected", async (userId) => {
+            try {
+                const recentChats = await GetRecentChats(userId);
+                socket.emit("updateRecentChats", recentChats);
+            } catch (error) {
+                console.error("Error fetching recent chats:", error);
+            }
+        });
+
+        // Join a private chat room
+        socket.on("joinPrivateRoom", async ({ user1, user2 }) => {
+            try {
+                let room = await CreatePrivateRoom(user1, user2);
+                socket.join(room._id.toString());
+    
+                const messages = await GetMessages(room._id);
+                socket.emit("loadChatHistory", messages);
+            } catch (error) {
+                console.log("error", error); 
+                if (error.cause) {
+                    console.error("Cause of error:", error.cause);
+                }  
+            }
+        });
+
+
+        // Handle private chat messages
+        socket.on("privateMessage", async ({ sender, receiver, message }) => {
+            try {
+                const room = await CreatePrivateRoom(sender, receiver);
+    
+                if (room) {
+                    console.log("sending private message to room", room._id);
+                    const new_message = await SendMessage(room?._id, sender, receiver, message);
+                    io.to(room._id.toString()).emit("privateMessage", new_message);
+
+                    // Update recent chats for both users
+                    const senderChats = await GetRecentChats(sender);
+                    const receiverChats = await GetRecentChats(receiver);
+
+                    io.to(sender).emit("updateRecentChats", senderChats);
+                    io.to(receiver).emit("updateRecentChats", receiverChats);
+                }
+            } catch (error) {
+                console.log("error", error);
+                if (error.cause) {
+                    console.error("Cause of error:", error.cause);
+                }
+            }
+        });
+
+        socket.on("disconnect", () => {
+            console.log(`User disconnected: ${socket.id}`);
         });
     });
 }

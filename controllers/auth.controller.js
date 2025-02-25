@@ -12,8 +12,7 @@ exports.login = async (req, res) => {
         const response = await LocalLogin(username, password);
         successResponse(res, 200, response);
     } catch (error) {
-        console.log("error: ", error?.message);
-        errorResponse(res, 500, error?.message ? error?.message : error);
+        errorResponse(res, error?.message ? 400 : 500, error?.message ? error?.message : error);
     }
 }
 
@@ -28,6 +27,6 @@ exports.register = async (req, res) => {
         const response = await LocalSignup(username, password);
         successResponse(res, 200, response);
     } catch (error) {
-        errorResponse(res, 500, error);
+        errorResponse(res, error?.message ? 400 : 500, error?.message ? error?.message : error);
     }
 }

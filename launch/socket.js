@@ -23,14 +23,17 @@ module.exports = (app) => {
         console.log("Socket server running on port 5000");
     });
 
+    const users = new Map(); // Store online users
 
     io.on('connection', (socket) => {
 
         // Handle user connection
-        socket.on("userConnected", async (userId) => {
+        socket.on("userConnected", async (username) => {
             try {
-                const recentChats = await GetRecentChats(userId);
+                const recentChats = await GetRecentChats(username);
                 socket.emit("updateRecentChats", recentChats);
+                socket.join(username);
+                console.log(username + ": connected!");
             } catch (error) {
                 console.error("Error fetching recent chats:", error);
             }

@@ -2,7 +2,7 @@ const Message = require("../../models/messages");
 const User = require("../../models/users");
 
 exports.GetRecentChats = async (sender) => {
-    const user  = await User?.findOne({ _id: sender });
+    const user  = await User?.findOne({ username: sender });
 
     const sender_messages = await Message
         .find({ sender: user?._id })

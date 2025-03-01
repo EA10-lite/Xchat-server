@@ -21,7 +21,7 @@ exports.GetRecentChats = async (sender) => {
     ]
 
 
-    const recent_chats = groupRecentChatsByRoomId(messages);
+    const recent_chats = groupRecentChatsByRoomId(messages.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));
     return recent_chats;
 }
 
